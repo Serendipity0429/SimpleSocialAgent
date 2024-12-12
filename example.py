@@ -39,6 +39,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-pip install openai networkx matplotlib
-export OPENAI_API_KEY='your-api-key'
-python example.py
