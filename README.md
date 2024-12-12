@@ -14,10 +14,3 @@ This project implements a social network simulation using multiple agents with p
 
 1. Clone the repository
 2. Install dependencies:
-
-3. Set up environment variables:
-
-## Usage
-
-Basic usage example:
-
