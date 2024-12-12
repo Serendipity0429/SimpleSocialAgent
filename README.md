@@ -16,3 +16,8 @@ This project implements a social network simulation using multiple agents with p
 2. Install dependencies:
 
 3. Set up environment variables:
+
+## Usage
+
+Basic usage example:
+
