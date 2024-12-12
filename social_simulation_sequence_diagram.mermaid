@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant Main as Simulation
+    participant Net as SocialNetwork
+    participant Ag as Agent
+    participant PG as PersonalityGenerator
+    participant LLM as LLMClient
+    participant DB as Database
+    participant NA as NetworkAnalyzer
+
+    Main->>Net: __init__(num_agents)
+    loop 创建Agents
+        Net->>Ag: create_agent(id)
+        Ag->>PG: generate_traits()
+        PG->>LLM: generate_response(trait_prompt)
+        LLM-->>PG: personality_traits
+        PG-->>Ag: traits
+    end
+
+    Main->>Net: run_simulation(steps)
+    loop 模拟步骤
+        Net->>Ag: select_random_pairs()
+        loop 每对Agent
+            Ag->>Ag: interact_with(other_agent)
+            Ag->>LLM: analyze_interaction(context)
+            LLM-->>Ag: interaction_result
+            Ag->>Ag: update_relationship(other_agent, score)
+            Ag->>DB: save_interaction(interaction)
+        end
+        Net->>NA: analyze_network()
+        NA->>NA: analyze_triadic_closure()
+        NA-->>Net: network_stats
+        Net->>DB: save_network_state()
+    end
+
+    Main->>NA: get_final_analysis()
+    NA-->>Main: analysis_results
+    Main->>DB: save_results()
