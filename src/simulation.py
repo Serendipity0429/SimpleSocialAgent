@@ -4,6 +4,7 @@ import time
 import glob
 from .network import SocialNetwork
 from .visualization import NetworkVisualizer
+from tqdm import tqdm
 
 class Simulation:
     def __init__(self, config):
@@ -24,15 +25,16 @@ class Simulation:
         self.network.initialize_edges(initial_weight)
 
     def run(self, steps: int):
+        num_possible_edges = self.config.num_agents * (self.config.num_agents - 1) // 2
+        interactions_per_step = int(self.config.interaction_ratio_per_step * num_possible_edges)
         for step in range(steps):
             print(f"Running simulation step {step + 1}/{steps}")
             
             # Select random pairs for interaction
-            pairs = self.network.select_random_pairs(
-                self.config.interactions_per_step)
+            pairs = self.network.select_random_pairs(interactions_per_step)
             
             # Simulate interactions
-            for agent_a, agent_b in pairs:
+            for agent_a, agent_b in tqdm(pairs, dynamic_ncols=True):
                 score = agent_a.interact_with(agent_b, self.config.llm_client)
                 score = 0 if score < self.config.threshold else score # Thresholding
                 self.network.update_edge(agent_a, agent_b, score)

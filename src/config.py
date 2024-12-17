@@ -2,12 +2,13 @@
 from dataclasses import dataclass
 from typing import Optional
 from .persona import PersonalityGenerator
+import os
 
 @dataclass
 class SimulationConfig:
     num_agents: int = 10
-    interactions_per_step: int = 5
-    visualization_interval: int = 10
+    interaction_ratio_per_step: int = 0.2
+    visualization_interval: int = 1
     output_dir: str = "./output"
     
     # LLM Configuration
@@ -27,6 +28,5 @@ class SimulationConfig:
     steps: int = 20
     
     def __post_init__(self):
-        import os
         os.makedirs(self.output_dir, exist_ok=True)
     

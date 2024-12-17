@@ -10,12 +10,13 @@ import time
 def parse_args():
     parser = argparse.ArgumentParser(description="Run network simulation")
     parser.add_argument("--num_agents", type=int, default=10, help="Number of agents in the network")
-    parser.add_argument("--interactions_per_step", type=int, default=5, help="Number of interactions per simulation step")
+    parser.add_argument("--interaction_ratio_per_step", type=int, default=0.3, help="Number of interactions per simulation step (1 means full update)")
     parser.add_argument("--visualization_interval", type=int, default=1, help="Interval for visualizing network state")
-    parser.add_argument("--steps", type=int, default=2, help="Number of simulation steps to run")
+    parser.add_argument("--steps", type=int, default=20, help="Number of simulation steps to run")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for simulation")
     parser.add_argument("--initial_weight", type=float, default=0.2, help="Initial edge weight for network")
     parser.add_argument("--threshold", type=float, default=0.3, help="Threshold for interaction score")
+    parser.add_argument("--output_dir", type=str, default=r"D:\Personal\Computer Science\homework\网络群体与市场\agent\simulation_results", help="Output directory for saving simulation results")
     return parser.parse_args()
 
 def main(args):
@@ -24,12 +25,12 @@ def main(args):
     
     # Fetch current time in the format: YYYY-MM-DD-HH-MM-SS
     current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
-    output_dir = os.getenv("OUTPUT_DIR") + f"/{current_time}"
+    output_dir = args.output_dir + f"/{current_time}"
     
     # Configure simulation
     config = SimulationConfig(
         num_agents=args.num_agents,
-        interactions_per_step=args.interactions_per_step,
+        interaction_ratio_per_step=args.interaction_ratio_per_step,
         visualization_interval=args.visualization_interval,
         output_dir=output_dir,
         api_key=os.getenv("API_KEY"),
