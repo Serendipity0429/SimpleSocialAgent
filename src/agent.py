@@ -2,7 +2,7 @@
 from typing import Dict, List, Optional
 from datetime import datetime
 import uuid
-
+from .interaction import Interaction
 class Agent:
     def __init__(self, id: str, personality_generator=None):
         self.id = id

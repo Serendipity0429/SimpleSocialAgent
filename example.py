@@ -3,31 +3,58 @@ import os
 from src.simulation import Simulation
 from src.config import SimulationConfig
 from src.llm import LLMClient
+from dotenv import load_dotenv
+import argparse
+import time
 
-def main():
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run network simulation")
+    parser.add_argument("--num_agents", type=int, default=10, help="Number of agents in the network")
+    parser.add_argument("--interactions_per_step", type=int, default=5, help="Number of interactions per simulation step")
+    parser.add_argument("--visualization_interval", type=int, default=1, help="Interval for visualizing network state")
+    parser.add_argument("--steps", type=int, default=2, help="Number of simulation steps to run")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for simulation")
+    parser.add_argument("--initial_weight", type=float, default=0.2, help="Initial edge weight for network")
+    parser.add_argument("--threshold", type=float, default=0.3, help="Threshold for interaction score")
+    return parser.parse_args()
+
+def main(args):
+    # Load environment variables from .env file
+    load_dotenv(verbose=True)
+    
+    # Fetch current time in the format: YYYY-MM-DD-HH-MM-SS
+    current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
+    output_dir = os.getenv("OUTPUT_DIR") + f"/{current_time}"
+    
     # Configure simulation
     config = SimulationConfig(
-        num_agents=10,
-        interactions_per_step=5,
-        visualization_interval=5,
-        output_dir="./simulation_results",
-        openai_api_key=os.getenv("OPENAI_API_KEY")
+        num_agents=args.num_agents,
+        interactions_per_step=args.interactions_per_step,
+        visualization_interval=args.visualization_interval,
+        output_dir=output_dir,
+        api_key=os.getenv("API_KEY"),
+        base_url=os.getenv("LLM_BASE_URL"),
+        model_name=os.getenv("MODEL_NAME"),
+        random_seed=args.seed,
+        initial_weight=args.initial_weight,
+        threshold=args.threshold,
+        steps=args.steps
     )
     
     # Initialize LLM client if API key is available
-    if config.openai_api_key:
-        llm_client = LLMClient(config.openai_api_key, config.model_name)
+    if config.api_key:
+        llm_client = LLMClient(config.api_key, config.model_name, config.base_url)
         config.llm_client = llm_client
     else:
-        print("Warning: No OpenAI API key provided. Using basic interaction model.")
+        print("Warning: No API key provided. Using basic interaction model.")
         config.llm_client = None
     
     # Create and run simulation
     simulation = Simulation(config)
-    simulation.initialize_network()
+    simulation.initialize_network(initial_weight=config.initial_weight)
     
-    # Run simulation for 20 steps
-    simulation.run(steps=20)
+    # Run simulation 
+    simulation.run(steps=config.steps)
     
     # Save and analyze results
     results = simulation.save_results()
@@ -38,4 +65,4 @@ def main():
         print(f"{metric}: {value:.3f}")
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())

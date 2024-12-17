@@ -19,6 +19,24 @@ class SocialNetwork:
 
     def update_edge(self, agent_a, agent_b, weight: float):
         self.graph.add_edge(agent_a.id, agent_b.id, weight=weight)
+        
+    def initialize_edges(self, initial_weight: float = 0.2):
+        num_pairs = len(self.agents) * (len(self.agents) - 1) // 2
+        num_pairs = int(num_pairs * initial_weight)
+        pairs = self.select_random_pairs(num_pairs)
+        for agent_a, agent_b in pairs:
+            random_weight = random.random()
+            self.update_edge(agent_a, agent_b, random.random())
+            agent_a.update_relationship(agent_b, random_weight)
+            agent_b.update_relationship(agent_a, random_weight)
+        # Ensure all agents have at least one connection
+        for agent in self.agents:
+            if not list(self.graph.neighbors(agent.id)):
+                other_agent = random.choice(self.agents)
+                random_weight = random.random()
+                self.update_edge(agent, other_agent, random_weight)
+                agent.update_relationship(other_agent, random_weight)
+                other_agent.update_relationship(agent, random_weight)
 
     def get_network_stats(self) -> Dict:
         self.network_stats = {
@@ -44,8 +62,10 @@ class SocialNetwork:
 
     def select_random_pairs(self, num_pairs: int) -> List[tuple]:
         all_possible_pairs = [
-            (a, b) for i, a in enumerate(self.agents)
-            for b in self.agents[i+1:]
+            (a, b) for a in range(len(self.agents)) 
+            for b in range(a+1, len(self.agents))
         ]
-        return random.sample(all_possible_pairs, 
+        results = random.sample(all_possible_pairs, 
                            min(num_pairs, len(all_possible_pairs)))
+        results = [(self.agents[a], self.agents[b]) for a, b in results]
+        return results

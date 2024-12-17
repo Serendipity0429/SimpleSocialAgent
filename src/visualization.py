@@ -2,6 +2,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from typing import Optional
+import imageio
 
 class NetworkVisualizer:
     def __init__(self, social_network):
@@ -11,7 +12,8 @@ class NetworkVisualizer:
     def plot_network(self, figure_size: tuple = (10, 10),
                     with_labels: bool = True,
                     node_size: int = 500,
-                    save_path: Optional[str] = None):
+                    save_path: Optional[str] = None,
+                    step: Optional[int] = None):
         plt.figure(figsize=figure_size)
         
         # Get the graph
@@ -43,7 +45,9 @@ class NetworkVisualizer:
         plt.close()
 
     def plot_network_evolution(self, metrics_history: dict,
-                             save_path: Optional[str] = None):
+                             save_dir: Optional[str] = None,
+                             all_plots: Optional[list] = None):
+        
         plt.figure(figsize=(12, 6))
         
         for metric, values in metrics_history.items():
@@ -54,9 +58,20 @@ class NetworkVisualizer:
         plt.title("Network Evolution")
         plt.legend()
         
-        if save_path:
+        if save_dir:
+            save_path = f"{save_dir}/network_evolution.png"
             plt.savefig(save_path)
         else:
             plt.show()
         
         plt.close()
+        
+        if all_plots:
+            save_path = f"{save_dir}/network_evolution.gif"
+            self.create_gif(all_plots=all_plots, save_path=save_path)
+            
+    def create_gif(self, all_plots: list, save_path: str):
+        images = []
+        for filename in all_plots:
+            images.append(imageio.imread(filename))
+        imageio.mimsave(save_path, images, duration=0.5)
